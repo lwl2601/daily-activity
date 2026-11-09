@@ -1,0 +1,62 @@
+name: Daily Activity Commits
+
+on:
+  schedule:
+    # Roda todos os dias às 15:17 UTC (12:17 BRT)
+    - cron: '17 15 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Modo de execução (daily = hoje, backfill = preencher histórico)'
+        required: true
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - backfill
+      min_commits:
+        description: 'Mínimo de commits por dia'
+        required: true
+        default: '10'
+      max_commits:
+        description: 'Máximo de commits por dia'
+        required: true
+        default: '20'
+      days:
+        description: 'Dias retroativos (usado apenas se mode = backfill)'
+        required: false
+        default: '365'
+
+permissions:
+  contents: write
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git User
+        run: |
+          git config user.name "Léo Wisbistcki Ludwig"
+          git config user.email "leoludwig26@gmail.com"
+
+      - name: Generate random commits (10-20)
+        env:
+          MODE: ${{ github.event.inputs.mode || 'daily' }}
+          MIN_COMMITS: ${{ github.event.inputs.min_commits || '10' }}
+          MAX_COMMITS: ${{ github.event.inputs.max_commits || '20' }}
+          DAYS: ${{ github.event.inputs.days || '365' }}
+        run: |
+          node src/commit-generator.js --mode="$MODE" --min="$MIN_COMMITS" --max="$MAX_COMMITS" --days="$DAYS"
+
+      - name: Push commits
+        run: git push origin HEAD:main

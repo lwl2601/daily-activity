@@ -1,0 +1,14 @@
+{
+  "name": "daily-activity",
+  "version": "1.0.0",
+  "description": "Ferramenta de commits automáticos diários (10 a 20 por dia em ordem aleatória) e backfill retroativo para o gráfico de contribuições do GitHub.",
+  "type": "module",
+  "scripts": {
+    "daily": "node src/commit-generator.js --mode=daily --min=10 --max=20",
+    "backfill": "node src/commit-generator.js --mode=backfill --days=365 --min=10 --max=20",
+    "dry-run": "node src/commit-generator.js --mode=daily --min=10 --max=20 --dry-run",
+    "test": "node --test test/commit-generator.test.js"
+  },
+  "author": "Léo Wisbistcki Ludwig <leoludwig26@gmail.com>",
+  "license": "MIT"
+}
